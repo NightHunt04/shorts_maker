@@ -165,7 +165,9 @@ def add_subtitles(
                         if j == i:
                             if kinetic_subtitles:
                                 # text += f"{{\\fs{text_highlight_font_size}\\c&H00FFFF&}}{word_info__['word']}{{\\r}}"
-                                text += f"{{\\fs{font_highlight_size}{highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')}}}{word_info__['word']}{{\\r}}"
+                                # text += f"{{\\fs{font_highlight_size}{highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')}}}{word_info__['word']}{{\\r}}"
+                                color_code = highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')
+                                text += f"{{\\fs{font_highlight_size}{color_code}}}{word_info__['word']}{{\\r}}"
                             else:
                                 text += word_info__['word']
                         else:
@@ -193,7 +195,9 @@ def add_subtitles(
         for j, word_info__ in enumerate(buffer):
             if j == i:
                 if kinetic_subtitles:
-                    text += f"{{\\fs{font_highlight_size}{highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')}}}{word_info__['word']}{{\\r}}"
+                    # text += f"{{\\fs{font_highlight_size}{highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')}}}{word_info__['word']}{{\\r}}"
+                    color_code = highlight_ass_colors.get(font_highlight_color, r'\c&HFFFFFF&')
+                    text += f"{{\\fs{font_highlight_size}{color_code}}}{word_info__['word']}{{\\r}}"
                 else:
                     text += word_info__['word']
             else:

@@ -15,3 +15,11 @@ def make_audio_file(video_uuid):
         return "✅ - audio files created successfully"
     except Exception as e:
         return f"❗- Error making audio files: {str(e)}"
+
+def make_single_audio_file(video, video_uuid):
+    try:
+        video = VideoFileClip(video)
+        video.audio.write_audiofile(f"media/audio_files/{video_uuid}.mp3")
+        return f'✅ - audio file {video_uuid}.mp3 created successfully'
+    except Exception as e:
+        return f"❗- Error making audio files: {str(e)}"

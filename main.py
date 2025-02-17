@@ -3,7 +3,7 @@ import uuid
 import os
 from utils.download_youtube_video import download_youtube_video
 from utils.load_youtube_transcript import load_youtube_transcript
-from utils.format_youtube_transcript import format_youtube_transcript
+from utils.format_youtube_transcript import format_youtube_transcript, format_groq_transcript
 from utils.select_clips import select_clips
 from utils.trim_selected_clips import trim_selected_clips
 from utils.auto_detect_humans import auto_detect_humans
@@ -13,6 +13,7 @@ from utils.make_audio_file import make_audio_file
 from utils.add_without_broll import add_without_broll
 from utils.add_with_stock_broll import add_with_stock_broll
 from utils.add_with_ai_broll import add_with_ai_broll
+from utils.groq_transcribe import groq_transcribe
 
 @click.command()
 @click.option('-u', '--url', default=None, show_default=True, help='URL of the YouTube video')
@@ -34,12 +35,13 @@ from utils.add_with_ai_broll import add_with_ai_broll
 @click.option('-fhs', '--font_highlight_size', default=24, show_default=True, help='Font size of text highlight in the video')
 @click.option('-bgc', '--background_color', default='transparent-0', show_default=True, help='Color of subtitles background')
 @click.option('-fc', '--font_color', default='white', show_default=True, help='Color of font')
-@click.option('-fhc', '--font_highlight_color', default='yellow-1', show_default=True, help='Color of font highlight')
+@click.option('-fhc', '--font_highlight_color', default='yellow', show_default=True, help='Color of font highlight')
 @click.option('-i', '--italic', is_flag=True, help='Whether to make the subtitles italic (default: False)')
 @click.option('-b', '--bold', is_flag=True, help='Whether to make the subtitles bold (default: False)')
 @click.option('-ks', '--kinetic_subtitles', is_flag=True, help='Whether to add kinetic subtitles in the video (default: False)')
 @click.option('-bgm', '--background_music', default=None, show_default=True, help="Background music")
 @click.option('-bgmv', '--background_music_volume', default=0.4, show_default=True, help="Volume of the background music")
+@click.option('-l', '--language', default='en', show_default=True, help="Language of the video")
 @click.option('--show_fonts', is_flag=True, help="Shows all available fonts")
 @click.option('--show_bgms', is_flag=True, help="Shows all available background music")
 def cli(
@@ -69,7 +71,8 @@ def cli(
         show_fonts,
         background_music,
         show_bgms,
-        background_music_volume
+        background_music_volume,
+        language
     ):
     if show_fonts:
         fonts_available = ('Playfair Display', 'Tahoma', 'Times New Roman', 'Verdana', 'Arial', 'Courier New', 'Noto Sans', 'Bebas Neue')
@@ -117,6 +120,7 @@ def cli(
         )
         click.echo(trimmed_status)
     else:
+        #--------below two functions are to get the transcript of the videos from the langchain youtube video provider
         # loading the transcript of video
         transcript, transcript_status = load_youtube_transcript(url, shorts_length)
         click.echo(transcript_status)
@@ -125,12 +129,21 @@ def cli(
         formatted_transcript, transcript_format_status = format_youtube_transcript(transcript, shorts_length)
         click.echo(transcript_format_status)
 
+        #----------below is the function which transcribes the video by using the groq's whisper-large-v3 api, which then allows for multilingual language video support
+        # transcript, transcript_status = groq_transcribe(video_uuid, language)
+        # click.echo(transcript_status)
+
+        # formatted_transcript, transcript_format_status = format_groq_transcript(transcript)
+        # print(formatted_transcript)
+        # click.echo(transcript_format_status)
+
         # selecting the clips
         selected_clips, clips_selection_status = select_clips(
             formatted_transcript, 
             shorts_length, 
             number_of_shorts
         )
+        print(selected_clips)
         click.echo(clips_selection_status)
 
         # trim the selected clips

@@ -38,6 +38,8 @@ You are an advanced AI assistant that specializes in analyzing YouTube video tra
    - Prioritize clips that:
      - Contain **high-energy, engaging, or viral-worthy** content.
      - Ensure **coherence and fluidity**, even if spanning across multiple segments.
+   - Ensure that the total time of the clips should be {MAX_SHORT_DURATION} seconds.
+     - If the selected clip is smaller than {MAX_SHORT_DURATION} seconds, then extend it by adding the next clip of it into the same, but just increasing the end time by the difference between the two clips lengths.
    - Example selection behavior:
      - If the next engaging moment continues, smoothly extend the clip **without abrupt cuts**.
 

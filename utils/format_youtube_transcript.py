@@ -10,3 +10,17 @@ def format_youtube_transcript(transcript, short_length = 60):
         return formatted_transcript, "✅ - transcript formatted successfully"
     except Exception as e:
         return None, f"❗- Error formatting transcript: {str(e)}"
+
+def format_groq_transcript(transcript):
+    try:
+        formatted_transcript = []
+
+        for segment in transcript:
+            start_seconds = segment['start']
+            page_content = segment['text']
+            end_seconds = segment['end']
+            formatted_transcript.append({ 'text': page_content, 'start': start_seconds, 'end': end_seconds })
+
+        return formatted_transcript, "✅ - transcript formatted successfully"
+    except Exception as e:
+        return None, f"❗- Error formatting transcript: {str(e)}"

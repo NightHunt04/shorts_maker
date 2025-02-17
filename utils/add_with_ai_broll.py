@@ -14,7 +14,7 @@ def add_with_ai_broll(
         font_size = 19,
         font_color = 'white',
         background_color = 'transparent-0',
-        font_highlight_color = 'yellow-1',
+        font_highlight_color = 'yellow',
         italic = False,
         bold = False,
         font_highlight_size = 24,
