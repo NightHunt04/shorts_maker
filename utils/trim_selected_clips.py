@@ -4,6 +4,8 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 def trim_selected_clips(transcript, video_uuid, downloaded_video_path, threads, custom_timestamps = None, shorts_length = 60):
     try:
+        # changed
+        print(downloaded_video_path)
         video_props = get_video_properties(downloaded_video_path)
         target_resolution = (video_props['height'], video_props['width'])
 
@@ -26,7 +28,7 @@ def trim_selected_clips(transcript, video_uuid, downloaded_video_path, threads, 
             
             for ind, segment in enumerate(segments):
                 clip = VideoFileClip(
-                    downloaded_video_path, 
+                    downloaded_video_path,  
                     audio = True, 
                     target_resolution = target_resolution
                 )

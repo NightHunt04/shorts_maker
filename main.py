@@ -1,6 +1,7 @@
 import click
 import uuid
 import os
+import re
 from utils.download_youtube_video import download_youtube_video
 from utils.load_youtube_transcript import load_youtube_transcript
 from utils.format_youtube_transcript import format_youtube_transcript, format_groq_transcript
@@ -27,6 +28,7 @@ from utils.groq_transcribe import groq_transcribe
 @click.option('-sbrl', '--add_stock_broll', is_flag=True, help='Whether to add stock b-roll in the video (default: False)')
 @click.option('-aibrl', '--add_ai_broll', is_flag=True, help='Whether to add AI generated b-roll in the video (default: False)')
 @click.option('-nbrl', '--no_broll', is_flag=True, help='Whether to not add b-roll in the video (default: False)')
+@click.option('-s', '--subtitles', is_flag=True, help='Whether to add subtitles in the video (default: False)')
 @click.option('-wps', '--words_per_subtitle', default=3, show_default=True, help='Words per subtitle')
 @click.option('-ct', '--custom_timestamps', default=None, show_default=True, help='Custom timestamps to cut the video in your own given timestamps. The format for this is: \n"start_time->end_time;" (for single clip)\n"start_time->end_time;start_time->end_time" (for multiple clips)\nExample: "20->70;123->180" (time must be in seconds)')
 @click.option('-sp', '--subtitles_position', default='center', show_default=True, help='Position of subtitles in the video [center, bottom]')
@@ -57,6 +59,7 @@ def cli(
         add_stock_broll, 
         add_ai_broll, 
         no_broll, 
+        subtitles,
         words_per_subtitle, 
         subtitles_position,
         kinetic_subtitles,
@@ -99,11 +102,29 @@ def cli(
         click.echo(os.path.abspath('music/'))
         return
 
+    if not auto_detection_crop and not gaussian_blur_bg_crop and not cinematic_crop:
+        cinematic_crop = True
+
     video_uuid = str(uuid.uuid4())
-    
-    # downloading the youtube video
-    video_status = download_youtube_video(url, video_uuid)
-    click.echo(video_status)
+    downloaded_video_uuid = video_uuid
+    # store session in a text file, which will have the url's id and the uuid so it won't download the video again if its already downloaded
+    given_url = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url).group(1)
+    is_downloaded_found = False
+    if os.path.exists('session.txt'):
+        with open('session.txt', 'r') as f:
+            line = f.read()
+            if line.startswith(given_url):
+                prev_video_uuid = line.split(' ')[1]
+                downloaded_video_uuid = str(prev_video_uuid.strip())
+                is_downloaded_found = True
+                click.echo(f'Found video with given url in session.txt, using existing video: {prev_video_uuid}')
+
+    if not is_downloaded_found:
+        # downloading the youtube video
+        video_status = download_youtube_video(url, video_uuid)
+        click.echo(video_status)
+        with open('session.txt', 'a') as f:
+            f.write(f'{given_url} {downloaded_video_uuid}\n')
 
     transcript = None
     transcript_status = None
@@ -111,12 +132,12 @@ def cli(
     if custom_timestamps:
         # trim the selected clips
         trimmed_status = trim_selected_clips(
-            transcript, 
-            video_uuid, 
-            f"media/downloads/{video_uuid}.mp4", 
-            threads, 
-            custom_timestamps, 
-            shorts_length
+            transcript = transcript, 
+            video_uuid = video_uuid, 
+            downloaded_video_path = f"media/downloads/{downloaded_video_uuid}.mp4", 
+            threads = threads, 
+            custom_timestamps = custom_timestamps, 
+            shorts_length = shorts_length,
         )
         click.echo(trimmed_status)
     else:
@@ -143,14 +164,13 @@ def cli(
             shorts_length, 
             number_of_shorts
         )
-        print(selected_clips)
         click.echo(clips_selection_status)
 
         # trim the selected clips
         trim_status = trim_selected_clips(
             selected_clips, 
             video_uuid, 
-            f"media/downloads/{video_uuid}.mp4", 
+            f"media/downloads/{downloaded_video_uuid}.mp4", 
             threads, 
             custom_timestamps, 
             shorts_length
@@ -190,7 +210,8 @@ def cli(
             subtitles_position = subtitles_position.lower().strip(),
             font_family = font_family,
             background_music = background_music,
-            background_music_volume = background_music_volume
+            background_music_volume = background_music_volume,
+            subtitles = subtitles
         )
         click.echo(add_with_stock_broll_status)
     if add_ai_broll:
@@ -209,7 +230,8 @@ def cli(
             subtitles_position = subtitles_position.lower().strip(),
             font_family = font_family,
             background_music = background_music,
-            background_music_volume = background_music_volume
+            background_music_volume = background_music_volume,
+            subtitles = subtitles
         )
         click.echo(add_with_ai_broll_status)
     if no_broll:
@@ -228,7 +250,8 @@ def cli(
             subtitles_position = subtitles_position.lower().strip(),
             font_family = font_family,
             background_music = background_music,
-            background_music_volume = background_music_volume
+            background_music_volume = background_music_volume,
+            subtitles = subtitles
         )
         click.echo(add_without_broll_status)
 

@@ -25,7 +25,7 @@ def curve_mask(video_uuid, threads, cinematic_crop_background):
                 black_bg = ImageClip(np.ones((final_height, final_width, 3), dtype=np.uint8) * 255, duration=video.duration)
 
             video_width, video_height = video.size
-            gap = 40  
+            gap = 50  
             new_video_width = final_width - 2 * gap  
             scale_factor = new_video_width / video_width
             new_video_height = int(video_height * scale_factor)
@@ -33,7 +33,7 @@ def curve_mask(video_uuid, threads, cinematic_crop_background):
             video_resized = video.resize(height=new_video_height, width=new_video_width)
 
             mask = np.zeros((new_video_height, new_video_width, 3), dtype=np.uint8)
-            radius = 30 
+            radius = 60 
 
             cv2.rectangle(mask, (radius, 0), (new_video_width - radius, new_video_height), (255, 255, 255), -1)
             cv2.rectangle(mask, (0, radius), (new_video_width, new_video_height - radius), (255, 255, 255), -1)

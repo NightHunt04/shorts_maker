@@ -64,12 +64,10 @@ def merge_short(
     ]
 
     bgm_audio = None
-    print(background_music)
-    print(int(background_music))
-    print(bgm[int(background_music)])
-    if int(background_music) >= 0 and int(background_music) < len(bgm):
-        bgm_music = bgm[int(background_music)]
-        bgm_audio = AudioFileClip(bgm_music).set_duration(video.duration).volumex(background_music_volume)
+    if background_music:
+        if int(background_music) >= 0 and int(background_music) < len(bgm):
+            bgm_music = bgm[int(background_music)]
+            bgm_audio = AudioFileClip(bgm_music).set_duration(video.duration).volumex(background_music_volume)
 
     if video.audio is not None:
         if bgm_audio:
